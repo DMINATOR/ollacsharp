@@ -4,6 +4,7 @@ using System.Diagnostics;
 using OllaCSharpApp;
 
 var ollamaPath = @"E:\dev\ollama\ollama.exe";
+var attributes = "run phi3";
 
 try
 {
@@ -32,13 +33,29 @@ try
     */
 
 
-    using(ProcessExecutor executor = new ProcessExecutor(ollamaPath))
+    using(ProcessExecutor executor = new ProcessExecutor(ollamaPath, attributes))
     {
         executor.Start();
 
+        Console.WriteLine("Process started, write exit to quit");
+        while(true)
+        {
+            var line = Console.ReadLine();
+
+            if( line == "exit")
+            {
+                break;
+            }
+            else
+            {
+                // send to process
+                executor.WriteToProcess(line);
+            }
+        }
+
         executor.Exit();
 
-        Console.WriteLine("Finished");
+        Console.WriteLine("Process finished");
     }
 }
 catch (Exception e)

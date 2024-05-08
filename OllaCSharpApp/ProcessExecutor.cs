@@ -10,13 +10,16 @@ namespace OllaCSharpApp;
 public class ProcessExecutor : IDisposable
 {
     private string _processPath;
+    private string _arguments;
+
     private Process? _process;
 
     private StreamWriter? _inputStreamWriter;
 
-    public ProcessExecutor(string processPath)
+    public ProcessExecutor(string processPath, string arguments)
     {
         _processPath = processPath;
+        _arguments = arguments;
     }
 
     public void Dispose()
@@ -33,6 +36,8 @@ public class ProcessExecutor : IDisposable
         try
         {
             _process = new Process();
+
+            _process.StartInfo.Arguments = _arguments;
 
             // Set UseShellExecute to false for redirection.
             _process.StartInfo.UseShellExecute = false;
@@ -60,10 +65,6 @@ public class ProcessExecutor : IDisposable
         {
             throw new InvalidOperationException($"Failed to start process, {ex.Message}", ex);
         }
-      
-        Console.ReadLine();
-
-        Console.WriteLine("Finished");
     }
 
     public void Exit()
@@ -83,9 +84,10 @@ public class ProcessExecutor : IDisposable
         }
     }
 
-    private void WriteToProcess(string message)
+    public void WriteToProcess(string message)
     {
-        _inputStreamWriter!.Write(message);
+        _inputStreamWriter!.WriteLine(message);
+        _inputStreamWriter!.Flush();
     }
 
     private void OutputDataReceivedHandler(object sendingProcess, DataReceivedEventArgs outLine)
