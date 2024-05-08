@@ -12,7 +12,7 @@ public class ProcessExecutor : IDisposable
     private string _processPath;
     private Process? _process;
 
-    private StreamWriter _inputStreamWriter;
+    private StreamWriter? _inputStreamWriter;
 
     public ProcessExecutor(string processPath)
     {
@@ -47,11 +47,14 @@ public class ProcessExecutor : IDisposable
 
             // Redirect standard input as well.  This stream is used synchronously.
             _process.StartInfo.RedirectStandardInput = true;
+            
+            _process.Start();
 
             // Use a stream writer to synchronously write the sort input.
             _inputStreamWriter = _process.StandardInput;
-            
-            _process.Start();
+
+            // Start the asynchronous read of the sort output stream.
+            _process.BeginOutputReadLine();
         }
         catch(Exception ex)
         {
@@ -63,13 +66,13 @@ public class ProcessExecutor : IDisposable
         Console.WriteLine("Finished");
     }
 
-    private void Exit()
+    public void Exit()
     {
         try
         {
-            _inputStreamWriter.Close();
+            _inputStreamWriter!.Close();
 
-            // Wait for the sort process to write the sorted text lines.
+            // Wait for the process to write the sorted text lines.
             _process!.WaitForExit();
 
             _process.Close();
@@ -82,7 +85,7 @@ public class ProcessExecutor : IDisposable
 
     private void WriteToProcess(string message)
     {
-        _inputStreamWriter.Write(message);
+        _inputStreamWriter!.Write(message);
     }
 
     private void OutputDataReceivedHandler(object sendingProcess, DataReceivedEventArgs outLine)

@@ -1,11 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Diagnostics;
+using OllaCSharpApp;
 
 var ollamaPath = @"E:\dev\ollama\ollama.exe";
 
 try
 {
+    /*
     using (Process myProcess = new Process())
     {
         myProcess.StartInfo.UseShellExecute = false;
@@ -24,6 +26,17 @@ try
 
 
         Console.ReadLine();
+
+        Console.WriteLine("Finished");
+    }
+    */
+
+
+    using(ProcessExecutor executor = new ProcessExecutor(ollamaPath))
+    {
+        executor.Start();
+
+        executor.Exit();
 
         Console.WriteLine("Finished");
     }
