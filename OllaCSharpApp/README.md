@@ -11,6 +11,15 @@ Experimentation
 Quickstart:
 <https://github.com/ollama/ollama/blob/main/README.md#quickstart>
 
+## Use cases
+
+1. Standalone app is triggered with Process start.
+2. Check compatibility
+3. List models
+4. Download a model
+5. Remove a model
+6. Trigger a model
+
 ## Author
 
 [Dmitri Kuznetsov](https://www.linkedin.com/in/dminator/)
