@@ -15,6 +15,7 @@ public class ProcessExecutor : IDisposable
     private Process? _process;
 
     private StreamWriter? _inputStreamWriter;
+    private StreamReader? _outputStreamReader;
 
     public ProcessExecutor(string processPath, string arguments)
     {
@@ -48,7 +49,8 @@ public class ProcessExecutor : IDisposable
             _process.StartInfo.RedirectStandardOutput = true;  
 
             // Set our event handler to asynchronously read the sort output.
-            _process.OutputDataReceived += OutputDataReceivedHandler;
+            //_process.OutputDataReceived += OutputDataReceivedHandler;
+            //_process.ErrorDataReceived += ErrorDataReceivedHandler;
 
             // Redirect standard input as well.  This stream is used synchronously.
             _process.StartInfo.RedirectStandardInput = true;
@@ -57,9 +59,13 @@ public class ProcessExecutor : IDisposable
 
             // Use a stream writer to synchronously write the sort input.
             _inputStreamWriter = _process.StandardInput;
+            _outputStreamReader = _process.StandardOutput;
 
             // Start the asynchronous read of the sort output stream.
-            _process.BeginOutputReadLine();
+            //_process.BeginOutputReadLine();
+            
+            // Read first anything from output before giving control to user
+            //ReadFromOutput();
         }
         catch(Exception ex)
         {
@@ -86,8 +92,41 @@ public class ProcessExecutor : IDisposable
 
     public void WriteToProcess(string message)
     {
-        _inputStreamWriter!.WriteLine(message);
-        _inputStreamWriter!.Flush();
+        Console.WriteLine($"[->]{message}");
+        //_inputStreamWriter!.WriteLine(message);
+        //_inputStreamWriter!.Flush();
+
+        _process.StandardInput.WriteLine(message);
+
+        // Read back the response
+        ReadFromOutput();
+    }
+
+    private void ReadFromOutput()
+    {
+        //while( _outputStreamReader.)
+        //var result = _outputStreamReader!.ReadToEnd();
+        //Console.WriteLine($"[<-]{result}");
+        //_process!.WaitForExit();
+        _outputStreamReader = _process.StandardOutput;
+        while (!_outputStreamReader!.EndOfStream)
+        {
+            var line = _outputStreamReader.ReadLine();
+            Console.WriteLine(line);
+        }
+/*
+        while( true )
+        {
+            var line = _outputStreamReader!.ReadLine();
+
+            if( line == null )
+            {
+                break;
+            }
+        }*/
+
+        //var result = _outputStreamReader!.ReadToEnd();
+        //Console.WriteLine($"[<-]{result}");
     }
 
     private void OutputDataReceivedHandler(object sendingProcess, DataReceivedEventArgs outLine)
@@ -96,6 +135,15 @@ public class ProcessExecutor : IDisposable
         if (!string.IsNullOrEmpty(outLine.Data))
         {
             Console.WriteLine($"[->]{outLine.Data}");
+        }
+    }
+
+    private void ErrorDataReceivedHandler(object sendingProcess, DataReceivedEventArgs outLine)
+    {
+        // Collect the sort command output.
+        if (!string.IsNullOrEmpty(outLine.Data))
+        {
+            Console.Error.WriteLine($"[->]{outLine.Data}");
         }
     }
 }
