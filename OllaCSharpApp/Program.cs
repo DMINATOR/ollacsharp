@@ -266,5 +266,60 @@ void Version5()
         process.WaitForExit();
 }
 
-Version5();
+void Version6()
+{
+    using (var proc = new System.Diagnostics.Process
+    {
+        StartInfo = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = ollamaPath,
+            Arguments = attributes,
+            UseShellExecute = false,
+            RedirectStandardOutput = true, // NOTE: optional
+            RedirectStandardInput = true, // NOTE: required
+            CreateNoWindow = true, // NOTE: optional
+            WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden // NOTE: optional
+        }
+    })
+    {
+        proc.StandardInput.WriteLine("Hello, World!"); // NOTE: this will send "Hello, World!" to the console application's process
+        proc.StandardOutput.ReadLine();
+    }
+}
+
+void Version7()
+{
+        ProcessStartInfo processStartInfo;
+        processStartInfo = new ProcessStartInfo();
+        processStartInfo.FileName = ollamaPath;
+        processStartInfo.Arguments = attributes;
+        processStartInfo.CreateNoWindow = true;
+
+        // Redirect IO to allow us to read and write to it.
+        processStartInfo.RedirectStandardOutput = true;
+        processStartInfo.RedirectStandardInput = true;
+        processStartInfo.UseShellExecute = false;
+
+        Process process = new Process();
+        process.StartInfo = processStartInfo;
+        process.Start();
+        int counter = 0;
+        while (counter < 10)
+        {
+            // Write to the process's standard input.
+            process.StandardInput.WriteLine(counter.ToString());
+
+            // Read from the process's standard output.
+            var output = process.StandardOutput.ReadLine();
+            Console.WriteLine("Hosted process said: " + output);
+            counter++;
+        }
+
+        process.Kill();
+
+        Console.WriteLine("Hit any key to exit.");
+        Console.ReadKey();
+}
+
+Version7();
 

@@ -6,6 +6,7 @@ namespace OllaCSharpApp;
 /// Executes a specific process and controls the input and output
 /// 
 /// References: https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.process.beginoutputreadline?view=net-8.0
+/// https://jonathancrozier.com/blog/working-with-processes-using-c-sharp
 /// </summary>
 public class ProcessExecutor : IDisposable
 {
