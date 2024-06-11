@@ -6,6 +6,7 @@ using System;
 using LLama.Abstractions;
 using System.Threading.Tasks;
 using static System.Collections.Specialized.BitVector32;
+using Godot;
 
 namespace GodotSample
 {
@@ -26,8 +27,8 @@ namespace GodotSample
                 GpuLayerCount = 5 // How many layers to offload to GPU. Please adjust it according to your GPU memory.
             };
 
-            using var model = LLamaWeights.LoadFromFile(parameters);
-            using var context = model.CreateContext(parameters);
+            var model = LLamaWeights.LoadFromFile(parameters);
+            var context = model.CreateContext(parameters);
 
 
             var executor = new InteractiveExecutor(context);
@@ -46,9 +47,7 @@ namespace GodotSample
                 AntiPrompts = new List<string> { "User:" } // Stop generation once antiprompts appear.
             };
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("The chat session has started.\nUser: ");
-            Console.ForegroundColor = ConsoleColor.Green;
+            GD.Print("The chat session has started.");
         }
 
         public async Task<string> SendMessage(string message)
