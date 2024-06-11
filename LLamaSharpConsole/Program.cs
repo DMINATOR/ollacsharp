@@ -12,6 +12,7 @@ Generally, we recommend downloading models with quantization rather than fp16, b
 */
 using LLama.Common;
 using LLama;
+using LLama.Native;
 
 
 // https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf
@@ -23,8 +24,12 @@ var parameters = new ModelParams(modelPath)
     ContextSize = 1024, // The longest length of chat as memory.
     GpuLayerCount = 5 // How many layers to offload to GPU. Please adjust it according to your GPU memory.
 };
+
+
 using var model = LLamaWeights.LoadFromFile(parameters);
 using var context = model.CreateContext(parameters);
+
+
 var executor = new InteractiveExecutor(context);
 
 // Add chat histories as prompt to tell AI how to act.
