@@ -6,17 +6,28 @@
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="Label" type="Label" parent="CanvasLayer"]
-offset_right = 40.0
-offset_bottom = 23.0
-text = "TEXT"
-
 [node name="Button" type="Button" parent="CanvasLayer"]
-offset_left = 26.0
-offset_top = 44.0
-offset_right = 122.0
-offset_bottom = 83.0
-text = "Click"
+offset_left = 28.0
+offset_top = 88.0
+offset_right = 124.0
+offset_bottom = 127.0
+text = "Send"
 script = ExtResource("1_qt0c1")
+
+[node name="TextMessage" type="TextEdit" parent="CanvasLayer"]
+unique_name_in_owner = true
+offset_left = 28.0
+offset_top = 32.0
+offset_right = 1129.0
+offset_bottom = 79.0
+text = "Hello how are you ?"
+
+[node name="TextHistory" type="TextEdit" parent="CanvasLayer"]
+unique_name_in_owner = true
+offset_left = 29.0
+offset_top = 141.0
+offset_right = 1130.0
+offset_bottom = 614.0
+wrap_mode = 1
 
 [connection signal="pressed" from="CanvasLayer/Button" to="CanvasLayer/Button" method="ButtonPressed"]
