@@ -1,4 +1,6 @@
-[gd_scene format=3 uid="uid://be3mvj6jb5crc"]
+[gd_scene load_steps=2 format=3 uid="uid://be3mvj6jb5crc"]
+
+[ext_resource type="Script" path="res://ButtonPress.cs" id="1_qt0c1"]
 
 [node name="Node2D" type="Node2D"]
 
@@ -8,3 +10,13 @@
 offset_right = 40.0
 offset_bottom = 23.0
 text = "TEXT"
+
+[node name="Button" type="Button" parent="CanvasLayer"]
+offset_left = 26.0
+offset_top = 44.0
+offset_right = 122.0
+offset_bottom = 83.0
+text = "Click"
+script = ExtResource("1_qt0c1")
+
+[connection signal="pressed" from="CanvasLayer/Button" to="CanvasLayer/Button" method="ButtonPressed"]
