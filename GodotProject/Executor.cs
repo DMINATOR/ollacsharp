@@ -1,19 +1,18 @@
 ﻿using LLama.Common;
 using LLama;
-using LLama.Native;
 using System.Collections.Generic;
-using System;
-using LLama.Abstractions;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 using Godot;
+using System;
 
 namespace GodotSample
 {
-    public class Executor
+    public class Executor : IDisposable
     {
         ChatSession _session;
         InferenceParams _inferenceParams;
+        LLamaWeights _model;
+        LLamaContext _context;
 
         // https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf
         // https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/blob/main/Phi-3-mini-4k-instruct-q4.gguf
@@ -27,11 +26,10 @@ namespace GodotSample
                 GpuLayerCount = 5 // How many layers to offload to GPU. Please adjust it according to your GPU memory.
             };
 
-            var model = LLamaWeights.LoadFromFile(parameters);
-            var context = model.CreateContext(parameters);
+            _model = LLamaWeights.LoadFromFile(parameters);
+            _context = _model.CreateContext(parameters);
 
-
-            var executor = new InteractiveExecutor(context);
+            var executor = new InteractiveExecutor(_context);
 
             // Add chat histories as prompt to tell AI how to act.
             var chatHistory = new ChatHistory();
@@ -64,5 +62,47 @@ namespace GodotSample
 
             return result;
         }
+
+
+        #region Disposable
+
+        // Flag to indicate if the object has been disposed.
+        private bool _disposed = false;
+
+        // Public implementation of Dispose pattern callable by consumers.
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern.
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                if( _context != null )
+                {
+                    _context.Dispose();
+                    _model.Dispose();
+
+                    _context = null;
+                    _model = null;
+                }
+            }
+
+            // Free any unmanaged objects here.
+            _disposed = true;
+        }
+
+        ~Executor()
+        {
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

@@ -1,6 +1,7 @@
 using Godot;
 using GodotSample;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using static LLama.LLamaTemplate;
 
@@ -13,20 +14,22 @@ using static LLama.LLamaTemplate;
 
 public partial class ButtonPress : Button
 {
-    private Executor _executor;
+    private ExecutorAsyncProxy _executor;
     private TextEdit _textMessage;
     private TextEdit _textHistory;
+    private Label _labelStatus;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
         _textMessage = GetNode<TextEdit>("%TextMessage");
         _textHistory = GetNode<TextEdit>("%TextHistory");
+        _labelStatus = GetNode<Label>("%LabelStatus");
 
         GD.Print("Loading");
 
-        _executor = new Executor();
-        _executor.Load();
+        _executor = new ExecutorAsyncProxy();
+        _executor.ResponseReceivedMessageDelegate += MessageReceivedCallbackFromWorkerThread;
 
         GD.Print("Loaded");
     }
@@ -45,12 +48,31 @@ public partial class ButtonPress : Button
         _textMessage.Text = ""; // clear
     }
 
+    // This is coming not from UI thread and need to be deferred to UI thread
+    private void MessageReceivedCallbackFromWorkerThread(string message)
+    {
+        CallDeferred(nameof(MessageReceivedCallbackDeferredUIThread), new string( message ));
+    }
+
+    private void MessageReceivedCallbackDeferredUIThread(string message)
+    {
+        _textHistory.Text += $":< '{message}'\r\n";
+
+        _labelStatus.Text = "XX"; // stopwatch.Elapsed.ToString();
+    }
+
     private void ProcessMessage(string message)
     {
+        //var stopwatch = Stopwatch.StartNew();
+
         _textHistory.Text += $":> '{message}'\r\n";
 
-        var response = _executor.SendMessage(message).Result;
+        _labelStatus.Text = "...";
+        _executor.SendMessage(message);
 
-        _textHistory.Text += $":< '{response}'\r\n";
+        //_textHistory.Text += $":< '{response}'\r\n";
+
+        //stopwatch.Stop();
+        //_labelStatus.Text = stopwatch.Elapsed.ToString();
     }
 }
