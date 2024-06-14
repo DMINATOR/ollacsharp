@@ -9,6 +9,12 @@ using static GodotSample.ExecutorAsyncProxy;
 
 namespace GodotSample
 {
+    /// <summary>
+    /// 
+    /// Phi-3 https://github.com/microsoft/Phi-3CookBook/blob/main/md/02.QuickStart/Ollama_QuickStart.md
+    /// 
+    /// <|system|>Your are my AI assistant.<|end|><|user|>tell me how to learn AI<|end|><|assistant|>
+    /// </summary>
     public class Executor : IDisposable
     {
         ChatSession _session;
