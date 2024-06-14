@@ -21,9 +21,9 @@ namespace GodotSample
 
         private void PreConfiguration()
         {
-            NativeLibraryConfig.LLava.WithLogCallback(delegate (LLamaLogLevel level, string message)
+            NativeLibraryConfig.All.WithLogCallback(delegate (LLamaLogLevel level, string message)
             {
-                GD.Print($"{ level}: {message}");
+                GD.Print($"{level}: {message}");
             });
         }
 
