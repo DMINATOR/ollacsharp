@@ -1,4 +1,5 @@
 ﻿using Godot;
+using LLama.Native;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -83,13 +84,14 @@ namespace GodotSample
         {
             try
             {
-                ReportMessage("Loading model");
+                LogMessage("Loading model");
 
                 // Start by loading executor
                 _executor = new Executor();
+                _executor.NativeLLamaLogCallbackDelegate += NativeLLamaLogCallbackDelegate;
                 _executor.Load();
 
-                ReportMessage("Model loaded");
+                LogMessage("Model loaded");
 
                 // Start loop to process messages
                 while (true)
@@ -98,7 +100,7 @@ namespace GodotSample
 
                     if (token.IsCancellationRequested)
                     {
-                        ReportMessage("Cancel thread");
+                        LogMessage("Cancel thread");
 
                         // Terminate the operation
                         token.ThrowIfCancellationRequested();
@@ -107,15 +109,15 @@ namespace GodotSample
             }
             catch (OperationCanceledException)
             {
-                ReportMessage("Thread cancelled");
+                LogMessage("Thread cancelled");
             }
             catch(Exception ex)
             {
-                ReportMessage($"Failed '{ex.Message}'");
+                LogMessage($"Failed '{ex.Message}'");
             }
         }
 
-        private void ReportMessage(string message)
+        private void LogMessage(string message)
         {
             var threadId = _thread.ManagedThreadId;
             GD.Print($"[{threadId}]: {message}");
@@ -128,12 +130,12 @@ namespace GodotSample
 
             if( _messages.TryDequeue(out var message))
             {
-                ReportMessage($"-> '{message}'");
+                LogMessage($"-> '{message}'");
 
                 // send message for processing
                 var response = _executor.SendMessage(message).Result;
 
-                ReportMessage($"<- '{response}'");
+                LogMessage($"<- '{response}'");
 
                 if ( ResponseReceivedMessageDelegate != null)
                 {
@@ -161,8 +163,29 @@ namespace GodotSample
             _threadMessageProcessing.Set();
         }
 
-        // Declare a delegate
+        #region Callback
+
+        public void NativeLLamaLogCallbackDelegate(LLamaLogLevel level, string message)
+        {
+            var formattedMessage = $"(LLAMA): {message.StripEscapes()}";
+            LogMessage(formattedMessage);
+
+            if ( NativeLLamaMessageReceivedDelegate != null)
+            {
+                NativeLLamaMessageReceivedDelegate(formattedMessage);
+            }
+        }
+
+        #endregion
+
+        #region Exposed Delegates
+
+        public delegate void NativeLLamaMessageReceived(string message);
+        public NativeLLamaMessageReceived NativeLLamaMessageReceivedDelegate;
+
         public delegate void ResponseReceivedMessage(string message);
         public ResponseReceivedMessage ResponseReceivedMessageDelegate;
+
+        #endregion
     }
 }

@@ -17,6 +17,7 @@ public partial class ButtonPress : Button
     private ExecutorAsyncProxy _executor;
     private TextEdit _textMessage;
     private TextEdit _textHistory;
+    private TextEdit _textSystemLog;
     private Label _labelStatus;
 
     // Called when the node enters the scene tree for the first time.
@@ -25,11 +26,13 @@ public partial class ButtonPress : Button
         _textMessage = GetNode<TextEdit>("%TextMessage");
         _textHistory = GetNode<TextEdit>("%TextHistory");
         _labelStatus = GetNode<Label>("%LabelStatus");
+        _textSystemLog = GetNode<TextEdit>("%TextSystemLog");
 
         GD.Print("Loading");
 
         _executor = new ExecutorAsyncProxy();
         _executor.ResponseReceivedMessageDelegate += MessageReceivedCallbackFromWorkerThread;
+        _executor.NativeLLamaMessageReceivedDelegate += SystemLogReceivedCallbackFromWorkerThread;
 
         GD.Print("Loaded");
     }
@@ -59,6 +62,16 @@ public partial class ButtonPress : Button
         _textHistory.Text += $":< '{message}'\r\n";
 
         _labelStatus.Text = "XX"; // stopwatch.Elapsed.ToString();
+    }
+
+    private void SystemLogReceivedCallbackFromWorkerThread(string message)
+    {
+        CallDeferred(nameof(SystemLogReceivedCallbackDeferredUIThread), new string(message));
+    }
+
+    private void SystemLogReceivedCallbackDeferredUIThread(string message)
+    {
+        _textSystemLog.Text += $"{message}\r\n";
     }
 
     private void ProcessMessage(string message)

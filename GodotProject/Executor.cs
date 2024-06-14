@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Godot;
 using System;
 using LLama.Native;
+using static GodotSample.ExecutorAsyncProxy;
 
 namespace GodotSample
 {
@@ -19,13 +20,31 @@ namespace GodotSample
         // https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/blob/main/Phi-3-mini-4k-instruct-q4.gguf
         string modelPath = @"E:\dev\models\Phi-3-mini-4k-instruct-q4.gguf"; // change it to your own model path.
 
+        public NativeLogConfig.LLamaLogCallback NativeLLamaLogCallbackDelegate;
+
         private void PreConfiguration()
         {
-            NativeLibraryConfig.All.WithLogCallback(delegate (LLamaLogLevel level, string message)
+            if( NativeLLamaLogCallbackDelegate != null )
+            {
+                NativeLibraryConfig.All.WithLogCallback(LLamaLogCallback);
+            }
+
+        }
+
+        private void LLamaLogCallback(LLamaLogLevel level, string message)
+        {
+            NativeLLamaLogCallbackDelegate(level, message);
+        }
+
+        /*
+        private static NativeLogConfig.LLamaLogCallback NativeLibraryLogMessageCallback()
+        {
+            return delegate (LLamaLogLevel level, string message)
             {
                 GD.Print($"{level}: {message}");
-            });
+            };
         }
+        */
 
         public void Load()
         {
