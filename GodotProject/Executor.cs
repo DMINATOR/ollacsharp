@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Godot;
 using System;
+using LLama.Native;
 
 namespace GodotSample
 {
@@ -18,8 +19,19 @@ namespace GodotSample
         // https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/blob/main/Phi-3-mini-4k-instruct-q4.gguf
         string modelPath = @"E:\dev\models\Phi-3-mini-4k-instruct-q4.gguf"; // change it to your own model path.
 
+        private void PreConfiguration()
+        {
+            NativeLibraryConfig.LLava.WithLogCallback(delegate (LLamaLogLevel level, string message)
+            {
+                GD.Print($"{ level}: {message}");
+            });
+        }
+
         public void Load()
         {
+
+            PreConfiguration();
+
             var parameters = new ModelParams(modelPath)
             {
                 ContextSize = 1024, // The longest length of chat as memory.
